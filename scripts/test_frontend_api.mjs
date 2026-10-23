@@ -3,17 +3,21 @@ import assert from 'node:assert/strict';
 import vm from 'node:vm';
 
 const catalog=JSON.parse(fs.readFileSync('backend/app/data/track_catalog.json','utf8'));
-const source=fs.readFileSync('frontend/src/services/api.js','utf8')
+const rawSource=fs.readFileSync('frontend/src/services/api.js','utf8');
+const source=rawSource
   .replace('import.meta.env.VITE_API_BASE_URL', 'undefined')
+  .replace('import.meta.env.DEV', 'false')
   .replace(/import catalogFallback from .*;\r?\n/, '')
   .replace(/export /g, '');
 const saved=new Map();
 let reachable=false;
+let requests=0;
 const sandbox={
   catalogFallback:catalog, console:{warn(){}}, Date, Math, JSON, Set, TypeError,
   crypto:{randomUUID:()=> '12345678-1234-1234-1234-123456789abc'},
   localStorage:{getItem:key=>saved.get(key)||null,setItem:(key,value)=>saved.set(key,value)},
   fetch:async()=>{
+    requests++;
     if(!reachable) throw new TypeError('Offline test');
     return {ok:false,status:400,json:async()=>({message:'Invalid request'})};
   },
@@ -46,6 +50,15 @@ for(const format of ['m3u','csv','json']){
 }
 await sandbox.removeCustomTrack(custom.id);
 assert.equal((await sandbox.fetchCustomTracks()).length,0);
+assert.equal(requests,0, 'Browser demo must not request localhost or a cloud API');
 reachable=true;
-await assert.rejects(()=>sandbox.generatePlaylist(parameters),/Invalid request/);
+const remoteSource=rawSource
+  .replace('import.meta.env.VITE_API_BASE_URL', '"https://api.example.test"')
+  .replace('import.meta.env.DEV', 'false')
+  .replace(/import catalogFallback from .*;\r?\n/, '')
+  .replace(/export /g, '');
+const remoteSandbox={...sandbox};
+vm.createContext(remoteSandbox);
+vm.runInContext(remoteSource,remoteSandbox);
+await assert.rejects(()=>remoteSandbox.generatePlaylist(parameters),/Invalid request/);
 console.log('Frontend offline custom tracks, generation, constraints, metrics, history, export and HTTP errors passed.');

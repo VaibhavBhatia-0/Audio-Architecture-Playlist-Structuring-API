@@ -35,7 +35,7 @@ export default function App() {
   
   // User Selection State
   const [duration, setDuration] = useState(45);
-  // Default to Contemporary Classical Piano, Indie Pop, and Hip-Hop as specifically highlighted in synopsis
+  // Default to Contemporary Classical Piano, Indie Pop, and Hip-Hop as a contrasting starter mix
   const [selectedGenres, setSelectedGenres] = useState([
     "Contemporary Classical Piano",
     "Indie Pop",
@@ -327,9 +327,9 @@ export default function App() {
           <h2 id="project-title" className="eyebrow">What this project demonstrates</h2>
           <div className="mt-6 grid md:grid-cols-3 md:divide-x divide-rule">
             {[
-              ['Structure', 'Seven target energy profiles, duration-aware beam search, transition scores and tunable weights.'],
+              ['Structure', 'Seven target energy profiles with browser-based sequencing; the local Python API adds duration-aware beam search and tunable transition scoring.'],
               ['Experience', 'Interactive trajectory, track previews, session history, custom metadata and portable exports.'],
-              ['Delivery', 'Runs locally today. Terraform and CI/CD are prepared for AWS once account setup is complete.'],
+              ['Delivery', 'The browser demo is Vercel-ready. Terraform is kept as a future AWS template; cloud deployment is pending.'],
             ].map(([title, text], index) => (
               <article key={title} className="py-4 md:py-0 md:px-8 first:md:pl-0 border-b md:border-b-0 border-rule last:border-b-0">
                 <p className="font-mono text-xs text-accent-ink">0{index + 1}</p>
@@ -343,8 +343,8 @@ export default function App() {
 
       <footer className="border-t-[1.5px] border-ink">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-col sm:flex-row sm:justify-between gap-2 text-xs text-muted">
-          <p>Dipankar Banerjee (240905618) · Pratham Shah (240905614) · Vaibhav Bhatia (240905504)</p>
-          <p>Team 6 · Batch B2 · Supervisor: Dr. Soumya Nandan Mishra</p>
+          <p>Audio Architecture · playlist structuring demo</p>
+          <a href="https://github.com/VaibhavBhatia-0/Audio-Architecture-Playlist-Structuring-API" className="text-link">Source on GitHub</a>
         </div>
       </footer>
 
@@ -377,7 +377,7 @@ export default function App() {
         }}
       />
 
-      {/* AWS Cloud Health & Managed Services Modal */}
+      {/* Runtime health and storage mode */}
       <HealthModal
         isOpen={isHealthOpen}
         onClose={() => setIsHealthOpen(false)}

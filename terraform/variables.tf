@@ -17,7 +17,7 @@ variable "project_name" {
 }
 
 variable "budget_limit_usd" {
-  description = "Monthly budget limit in USD to trigger alerts (Guideline 7: Budget Caution)"
+  description = "Monthly budget limit in USD to trigger alerts"
   type        = string
   default     = "5.0"
 }
@@ -35,11 +35,11 @@ variable "api_throttle_burst_limit" {
 }
 
 variable "budget_alert_emails" {
-  description = "List of email addresses to receive cloud budget overrun notifications"
+  description = "Email addresses that receive budget notifications in a future deployment"
   type        = list(string)
-  default = [
-    "vaibhav.bhatia@learner.manipal.edu",
-    "pratham.shah@learner.manipal.edu",
-    "dipankar.banerjee@learner.manipal.edu"
-  ]
+
+  validation {
+    condition     = length(var.budget_alert_emails) > 0 && alltrue([for email in var.budget_alert_emails : can(regex("^[^@ ]+@[^@ ]+$", email))])
+    error_message = "Provide at least one valid budget alert email address."
+  }
 }

@@ -1,7 +1,6 @@
-# PowerShell script to run the local demo environment for Lab 12 Live Presentation
+# Starts the local API (port 8000) and the Vite dev server (port 3000).
 Write-Host "=================================================================" -ForegroundColor Cyan
 Write-Host " AUDIO ARCHITECTURE & PLAYLIST STRUCTURING API - LOCAL RUNNER" -ForegroundColor Cyan
-Write-Host " Team 6 | 5th Semester | Batch B2 | Academic Year 2026-27" -ForegroundColor Cyan
 Write-Host "=================================================================" -ForegroundColor Cyan
 
 # 1. Start Python Local API Gateway / Lambda Server in background

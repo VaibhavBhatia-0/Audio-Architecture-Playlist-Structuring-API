@@ -156,7 +156,7 @@ def main():
             "The session used a planned eight-second crossfade without repeats.", "",
             "## Original and improved engine", "",
             "For a fair historical comparison, both engines use the original 48-track catalog and three selected genres.",
-            "The live demo catalog contains at least 118 tracks.",
+            "The current catalog contains at least 118 tracks.",
             "Duration error uses seconds. Runtime uses milliseconds and depends on the machine.",
             "The new energy metric integrates three samples per track, so its energy error",
             "is not directly comparable with the original midpoint metric.", "",

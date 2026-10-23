@@ -2,7 +2,7 @@
 Standalone Local Development Server.
 Simulates AWS API Gateway + Lambda proxy integration locally using Python's
 built-in standard library http.server (no external dependencies required).
-Runs on http://localhost:8000 for local live demonstrations (Lab 12 demo).
+Runs on http://localhost:8000 for local development.
 """
 import json
 import logging

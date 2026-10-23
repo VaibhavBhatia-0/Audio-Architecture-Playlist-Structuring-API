@@ -1,9 +1,9 @@
 # Frontend: Audio Architecture dashboard
 
 React 19 + Vite 8 + Tailwind CSS 4 single-page application for the Audio
-Architecture & Playlist Structuring API. It implements the synopsis User
-Interface module and calls the API for generation, history, custom tracks and
-export.
+Architecture & Playlist Structuring API. Without `VITE_API_BASE_URL`, the
+production build runs as a browser-only demo: simplified playlist optimization,
+custom metadata, history and exports all stay in the visitor's browser.
 
 ## Run
 
@@ -17,9 +17,11 @@ npm --prefix frontend run build    # production bundle in frontend/dist
 node scripts/test_frontend_api.mjs # service-layer tests
 ```
 
-Start the Python API as well (`scripts/run_local.ps1` runs both). The API base
-URL comes from `VITE_API_BASE_URL` and defaults to `http://localhost:8000`; the
-deployment workflow sets it to the API Gateway endpoint at build time.
+For the full Python engine locally, start the API too (`scripts/run_local.ps1`
+runs both); development mode defaults to `http://localhost:8000`. Production
+builds without `VITE_API_BASE_URL` make no API requests. Vercel hosts the static
+frontend only, using the root `vercel.json` configuration. No cloud API is
+currently deployed or required for the browser demo.
 
 ## Structure
 

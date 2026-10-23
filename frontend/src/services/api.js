@@ -1,10 +1,14 @@
 /**
  * API Service for Audio Architecture & Playlist Structuring API.
- * Communicates with AWS API Gateway / Local Python server, with
- * built-in client-side engine fallback for offline demo resilience.
+ * Uses the Python API when configured; otherwise runs as a browser-only demo.
  */
 
-const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || "http://localhost:8000").replace(/\/$/, '');
+const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || (import.meta.env.DEV ? "http://localhost:8000" : "")).replace(/\/$/, '');
+
+function requestApi(path, options) {
+  if (!API_BASE_URL) return Promise.reject(new TypeError("No API configured; using browser demo."));
+  return fetch(`${API_BASE_URL}${path}`, options);
+}
 
 // Client-side fallback catalog
 import catalogFallback from "../../../backend/app/data/track_catalog.json";
@@ -21,7 +25,7 @@ export async function fetchTracks() {
     const tracks = [];
     let total = Infinity;
     while (tracks.length < total) {
-      const res = await fetch(`${API_BASE_URL}/tracks?limit=500&offset=${tracks.length}`);
+      const res = await requestApi(`/tracks?limit=500&offset=${tracks.length}`);
       if (!res.ok) break;
       const page = await res.json();
       total = page.total;
@@ -35,7 +39,7 @@ export async function fetchTracks() {
 
 export async function fetchCustomTracks() {
   try {
-    const res = await fetch(`${API_BASE_URL}/tracks/custom`);
+    const res = await requestApi('/tracks/custom');
     if (res.ok) return (await res.json()).tracks;
   } catch { /* Offline demo below. */ }
   return localCustomTracks();
@@ -43,7 +47,7 @@ export async function fetchCustomTracks() {
 
 export async function addCustomTrack(details) {
   try {
-    const res = await fetch(`${API_BASE_URL}/tracks/custom`, {
+    const res = await requestApi('/tracks/custom', {
       method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(details)
     });
     const data = await res.json();
@@ -64,7 +68,7 @@ export async function addCustomTrack(details) {
 
 export async function removeCustomTrack(id) {
   try {
-    const res = await fetch(`${API_BASE_URL}/tracks/custom/${encodeURIComponent(id)}`, { method: "DELETE" });
+    const res = await requestApi(`/tracks/custom/${encodeURIComponent(id)}`, { method: "DELETE" });
     if (!res.ok) throw new Error("Could not delete track.");
     return;
   } catch (error) {
@@ -78,7 +82,7 @@ export async function removeCustomTrack(id) {
 
 export async function fetchHealth() {
   try {
-    const res = await fetch(`${API_BASE_URL}/health`);
+    const res = await requestApi('/health');
     if (res.ok) return await res.json();
   } catch (err) {
     console.warn("Backend /health unreachable, using local mock status:", err.message);
@@ -87,24 +91,17 @@ export async function fetchHealth() {
     status: "healthy (client-fallback)",
     service: "Audio Architecture & Playlist Structuring API",
     version: "1.0.0",
-    aws_region: "us-east-1",
     dynamodb_connected: false,
     s3_connected: false,
     catalog_track_count: offlineCatalog().length,
     custom_track_count: localCustomTracks().length,
-    managed_services: [
-      "AWS Lambda (Serverless Compute)",
-      "Amazon API Gateway (HTTP API v2)",
-      "Amazon DynamoDB (NoSQL Data & History)",
-      "Amazon S3 (Playlist Export Bundles)",
-      "Amazon CloudWatch & AWS Budgets (DevOps & Alerts)"
-    ]
+    managed_services: ["Browser storage", "Browser playlist engine"]
   };
 }
 
 export async function fetchGenres() {
   try {
-    const res = await fetch(`${API_BASE_URL}/genres`);
+    const res = await requestApi('/genres');
     if (res.ok) {
       const data = await res.json();
       return data.genres;
@@ -139,7 +136,7 @@ export async function fetchGenres() {
 
 export async function fetchPresets() {
   try {
-    const res = await fetch(`${API_BASE_URL}/presets`);
+    const res = await requestApi('/presets');
     if (res.ok) {
       const data = await res.json();
       return data.presets;
@@ -204,7 +201,7 @@ export async function fetchPresets() {
 export async function generatePlaylist(params) {
   let response;
   try {
-    response = await fetch(`${API_BASE_URL}/playlists/generate`, {
+    response = await requestApi('/playlists/generate', {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(params)
@@ -223,7 +220,7 @@ export async function generatePlaylist(params) {
 
 export async function fetchHistory() {
   try {
-    const res = await fetch(`${API_BASE_URL}/playlists/history`);
+    const res = await requestApi('/playlists/history');
     if (res.ok) {
       const data = await res.json();
       return data.history;
@@ -240,7 +237,7 @@ export async function fetchHistory() {
 
 export async function fetchPlaylist(playlistId) {
   try {
-    const res = await fetch(`${API_BASE_URL}/playlists/${encodeURIComponent(playlistId)}`);
+    const res = await requestApi(`/playlists/${encodeURIComponent(playlistId)}`);
     if (res.ok) {
       const data = await res.json();
       return data.playlist;
@@ -258,7 +255,7 @@ export async function fetchPlaylist(playlistId) {
 export async function exportPlaylist(params) {
   let response;
   try {
-    response = await fetch(`${API_BASE_URL}/playlists/export`, {
+    response = await requestApi('/playlists/export', {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(params)

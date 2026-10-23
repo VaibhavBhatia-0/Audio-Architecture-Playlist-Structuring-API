@@ -40,7 +40,7 @@ export default function HealthModal({ isOpen, onClose }) {
             </div>
           ))}
         </dl>}
-        <p className="mt-4 text-xs text-muted leading-relaxed">AWS infrastructure is defined in Terraform; deployment requires account configuration. Offline mode keeps metadata and history in this browser.</p>
+        <p className="mt-4 text-xs text-muted leading-relaxed">The hosted demo uses browser storage and a simplified browser optimizer. The Python beam-search API works locally; AWS infrastructure is retained only as a future template.</p>
       </div>
     </div>
   </div>;

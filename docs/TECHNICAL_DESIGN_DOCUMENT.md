@@ -1,26 +1,14 @@
 # Technical Design Document: Audio Architecture & Playlist Structuring API
 
-**Course:** Cloud Computing & DevOps Mini-Project  
-**Academic Year:** 2026-27 | **Semester:** 5th Semester | **Section:** B | **Batch:** B2 | **Team:** 6  
-**Department:** School of Computer Engineering  
-**Supervisor:** Dr. Soumya Nandan Mishra  
-
----
-
-### Team Members & Contributions
-| Student Name | Registration No. | Role / Primary Domain | Key Individual Contributions |
-| :--- | :--- | :--- | :--- |
-| **Dipankar Banerjee** | 240905618 | Cloud Infrastructure & DevOps | AWS Terraform IaC, API Gateway v2, DynamoDB schema, AWS Budgets alerts, CI/CD Pipeline |
-| **Pratham Shah** | 240905614 | Core Audio Engine & Algorithms | Mathematical Energy Profiling, Camelot Wheel harmonic matrix, Beam Search optimizer |
-| **Vaibhav Bhatia** | 240905504 | Full-Stack Integration & UI | React UI Module, Interactive SVG Energy Visualizer, Web Audio Synthesizer, Exporters |
+Repository: https://github.com/VaibhavBhatia-0/Audio-Architecture-Playlist-Structuring-API
 
 ---
 
 ## 1. Introduction
 
-Continuous audio listening is an integral component of modern cognitive environments, ranging from high-focus software engineering sessions and intensive academic study to interval athletic conditioning and mindful decompression. While modern streaming platforms provide millions of tracks, automated recommendation systems typically rely on collaborative filtering or track-by-track shuffle heuristics that prioritize individual track affinity rather than macro-level temporal energy progression. 
+Continuous audio listening is an integral component of modern cognitive environments, ranging from high-focus work and study sessions to interval athletic conditioning and mindful decompression. While modern streaming platforms provide millions of tracks, automated recommendation systems typically rely on collaborative filtering or track-by-track shuffle heuristics that prioritize individual track affinity rather than macro-level temporal energy progression.
 
-The **Audio Architecture & Playlist Structuring API** is a serverless, cloud-native system engineered to mathematically structure continuous, multi-genre audio playlists tailored to explicit mathematical energy curves \(E(t)\). By treating playlist sequencing as a multi-objective trajectory optimization problem over acoustic feature spaces (energy, tempo/BPM, Camelot harmonic key, and acoustic affinity), the system targets deliberate energy flow across extended sessions without the cognitive burden of manual curation.
+The **Audio Architecture & Playlist Structuring API** has a browser-only demo, a local Python API, and a future serverless AWS deployment template. By treating playlist sequencing as a multi-objective trajectory optimization problem over acoustic feature spaces (energy, tempo/BPM, Camelot harmonic key, and acoustic affinity), the system targets deliberate energy flow across extended sessions without the cognitive burden of manual curation.
 
 ---
 
@@ -36,12 +24,12 @@ Listeners face several systemic barriers when attempting to curate functional, e
 
 ## 3. Solution Architecture
 
-The system is a serverless application on **Amazon Web Services (AWS)**. All
-cloud resources are declared in **Terraform** and released through a gated
-**GitHub Actions** pipeline. CloudFront serves the compiled React application
-from a private S3 bucket, and API Gateway forwards API calls to a single Lambda
-function. The resources below are *defined* in `terraform/`; no live deployment
-has been verified yet (see `DEPLOYMENT.md`).
+The current hosted configuration is a static React browser demo; without an
+API URL, it uses browser storage and a simpler browser optimizer. The full
+Python beam-search API runs locally. The diagram below describes a *future*
+AWS architecture defined in `terraform/`, not deployed resources. GitHub Actions
+currently runs checks only; no AWS deployment workflow is active. See
+`DEPLOYMENT.md` for the current status.
 
 ```mermaid
 flowchart TD
@@ -72,7 +60,7 @@ flowchart TD
     subgraph DevOpsLayer ["DevOps & Governance"]
         CW["Amazon CloudWatch Logs\n(Lambda + API access logs)"]
         BudgetAlerts["AWS Budgets\n($5 monthly alert)"]
-        GHActions["GitHub Actions\n(tests, plan, approved apply)"]
+        GHActions["Future deployment workflow\n(not active)"]
         Terraform["Terraform\n(S3 remote state)"]
     end
 
@@ -86,7 +74,7 @@ flowchart TD
     Lambda -->|"Execution logs"| CW
     APIGW -->|"Access logs"| CW
     UI -.->|"Preview playback"| WebAudio
-    GHActions -->|"Plan, then apply saved plan"| Terraform
+    GHActions -.->|"Future plan and apply"| Terraform
     Terraform -->|"Provisions"| APIGW
     Terraform -->|"Provisions"| Lambda
     Terraform -->|"Provisions"| StorageLayer
@@ -94,7 +82,7 @@ flowchart TD
     Terraform -->|"Creates alert"| BudgetAlerts
 ```
 
-### AWS Managed Services
+### Proposed AWS Managed Services (not deployed)
 1. **AWS Lambda:** Runs the sequencing engine. The track catalog is packaged
    with the function and loaded once per execution environment. Memory 256 MB,
    timeout 30 s.
@@ -111,17 +99,17 @@ flowchart TD
    private frontend bucket through origin access control.
 6. **Amazon CloudWatch and AWS Budgets:** Lambda and API Gateway logs (14-day
    retention) and a $5.00 monthly budget with 80%, 100% and forecast alerts.
-   Budget alerts notify the team; they do not cap spending.
+   Budget alerts notify the account owner; they do not cap spending.
 
-Tooling: Terraform (infrastructure as code) and GitHub Actions (CI/CD).
+Tooling: Terraform (future infrastructure template) and GitHub Actions (CI checks).
 
 ---
 
 ## 4. Application Architecture
 
-The system consists of the four modules defined in the project synopsis:
+The system consists of four modules:
 
-| Synopsis module | Implementation |
+| Module | Implementation |
 | :--- | :--- |
 | User Interface | React dashboard (`frontend/src/`): duration, genres, preset or custom energy curve, BPM bounds, exclusions, crossfade, scenario starters, custom-track form, history and export dialogs. Results (metrics, energy chart, tracklist) appear directly below the builder. |
 | Audio Architecture Engine (API) | Lambda handler (`backend/app/lambda_handler.py`) with request validation and the engine in `backend/app/engine/`. |
@@ -131,7 +119,7 @@ The system consists of the four modules defined in the project synopsis:
 ```mermaid
 sequenceDiagram
     autonumber
-    actor User as Listener / Student
+    actor User as Listener
     participant UI as User Interface Module (React)
     participant API as API Gateway & Lambda (Engine)
     participant DB as Amazon DynamoDB
@@ -314,13 +302,14 @@ The Lambda role may access only these two tables and the playlist index.
 | `GET` | `/playlists/history` | Recent playlists for a `user_id` | `200` |
 | `POST` | `/playlists/export` | Export a stored playlist as M3U, JSON or CSV to S3 | `200` / `400` / `404` / `503` |
 
-Request and response details are in `docs/API_SPECIFICATION.md`. The deployed
-stage returns `429` when throttling limits are exceeded.
+Request and response details are in `docs/API_SPECIFICATION.md`. The proposed
+AWS stage would return `429` when throttling limits are exceeded.
 
-**Current limitations.** The application is a shared guest demo: `user_id` is
-not authenticated, history and the custom catalog are shared by all visitors,
-and API CORS allows any origin. Authentication, per-user authorization and a
-restricted CORS origin are required before storing private data. Track records
+**Current limitations.** The browser-only demo stores history and custom tracks
+locally per browser. The Python API's `user_id` is not authenticated and its
+local history is not suitable for private multi-user hosting. Authentication,
+per-user authorization and a restricted CORS origin are required before making
+that API publicly available. Track records
 are fictional metadata, not audio recordings; previews are synthesized, M3U
 paths are placeholders for user-supplied files, and crossfade is a schedule,
 not rendered audio.
@@ -331,34 +320,12 @@ not rendered audio.
 
 1. **Serverless Execution Profile:** The catalog loads once per execution environment. Local measurements appear in TEST_RESULTS.md. Cloud cold-start and warm invocation latency require measurement after deployment.
 2. **Harmonic Modular Arithmetic:** Treating Camelot keys as a cyclic group $\mathbb{Z}_{12}$ significantly simplified harmonic transition calculations and allowed seamless integration of double-time and half-time tempo shifts for genre boundary crossings.
-3. **Decoupled Local Simulation:** A standard-library HTTP server (`backend/app/local_server.py`) that converts requests into API Gateway proxy events ensured the team could develop, debug, and run live interactive demonstrations without requiring constant cloud deployments or incurring egress charges.
+3. **Decoupled Local Simulation:** A standard-library HTTP server (`backend/app/local_server.py`) that converts requests into API Gateway proxy events made it possible to develop, debug and run the full application locally without requiring constant cloud deployments or incurring egress charges.
 4. **Cloud Cost Discipline:** Budget notifications and S3 lifecycle rules help monitor costs. Actual account costs and free-tier eligibility require verification after deployment.
 
 ---
 
-## 7. Individual Contributions
-
-### Dipankar Banerjee (Registration No: 240905618)
-- Architected and scripted the modular **Terraform Infrastructure as Code (IaC)** configuration across all AWS resources (`main.tf`, `api_gateway.tf`, `lambda.tf`, `dynamodb.tf`, `s3.tf`, `iam.tf`, `budgets.tf`).
-- Designed the Amazon DynamoDB table schema, indexes, and on-demand billing model.
-- Configured the GitHub Actions CI/CD workflow for unit tests, frontend builds, Terraform validation, AWS infrastructure deployment, CloudFront publication and API smoke testing.
-- Implemented the AWS Budgets \$5.00 threshold monitoring and alerting to satisfy Guideline 7.
-
-### Pratham Shah (Registration No: 240905614)
-- Formulated the mathematical equations for continuous energy curves \(E(t)\) (Pomodoro, Linear Ascent/Descent, Interval Wave, Steady Flow, Sunset).
-- Developed the Camelot Wheel musical key compatibility engine and cyclic circular distance algorithms.
-- Authored the multi-objective Beam Search optimizer incorporating dynamic duration constraints, tempo Gaussian decay, and genre acoustic bridging.
-- Authored the Python unit testing suite covering curve boundary conditions, optimizer performance, harmonic edge cases, request validation, export safety and Lambda import compatibility (43 test cases as of 22 October 2026).
-
-### Vaibhav Bhatia (Registration No: 240905504)
-- Designed and built the responsive **User Interface Module** using React, Vite, and Tailwind CSS.
-- Developed the interactive **Energy Curve Visualizer** SVG component mapping target continuous curves against discrete track steps with hover telemetry.
-- Implemented the **Web Audio API Polyphonic Synthesizer** for real-time acoustic preview playback and continuous audio walkthroughs.
-- Created the **Export & Integration Module** supporting Extended M3U, JSON, and CSV downloads.
-
----
-
-## 8. Source Repository Link & Setup Instructions
+## 7. Source Repository & Setup
 
 - **Source repository** (application code, Terraform and pipeline):
   https://github.com/VaibhavBhatia-0/Audio-Architecture-Playlist-Structuring-API
@@ -373,17 +340,9 @@ python scripts/verify_project.py
 powershell -NoProfile -ExecutionPolicy Bypass -File scripts/run_local.ps1
 ```
 
-**Pipeline deployment.** Every push runs backend tests, the HTTP integration
-check, the frontend build and Terraform validation. When AWS deployment is
-enabled, a `production`-approved job creates a Terraform plan and publishes it
-in the run summary; a second approval applies exactly that saved plan, then
-publishes the frontend and runs the deployed smoke test. Account setup is in
-`docs/AWS_SETUP.md`.
-
-**Manual deployment** (state bucket created beforehand):
-```powershell
-terraform -chdir=terraform init -backend-config="bucket=YOUR_STATE_BUCKET" -backend-config="key=audio-architecture/terraform.tfstate" -backend-config="region=us-east-1" -backend-config="encrypt=true"
-terraform -chdir=terraform plan -var-file=terraform.tfvars.example -out=tfplan
-terraform -chdir=terraform apply tfplan
-```
-Review the plan and expected costs before applying.
+**Current pipeline.** Every push runs backend tests, the HTTP integration
+check, the frontend build and Terraform validation. It does not plan, apply,
+or destroy AWS resources. The static browser demo can be built for Vercel using
+the root `vercel.json` without `VITE_API_BASE_URL`. AWS setup remains a future
+step documented in `docs/AWS_SETUP.md`; review the template, region, security,
+account eligibility, and expected costs before any deployment.

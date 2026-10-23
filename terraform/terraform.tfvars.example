@@ -2,11 +2,7 @@ aws_region          = "us-east-1"
 environment         = "dev"
 project_name        = "audio-architecture-api"
 budget_limit_usd    = "5.0"
-budget_alert_emails = [
-  "vaibhav.bhatia@learner.manipal.edu",
-  "pratham.shah@learner.manipal.edu",
-  "dipankar.banerjee@learner.manipal.edu"
-]
+budget_alert_emails = ["you@example.com"]
 
 api_throttle_rate_limit  = 5
 api_throttle_burst_limit = 10

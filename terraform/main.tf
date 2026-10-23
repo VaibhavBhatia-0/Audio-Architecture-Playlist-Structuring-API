@@ -25,9 +25,6 @@ provider "aws" {
   default_tags {
     tags = {
       Project     = "AudioArchitectureSystem"
-      Team        = "Team-6"
-      Semester    = "5th-Semester"
-      Batch       = "B2"
       ManagedBy   = "Terraform"
       Environment = var.environment
     }

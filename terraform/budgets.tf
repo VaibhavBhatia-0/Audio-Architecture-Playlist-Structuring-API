@@ -1,5 +1,5 @@
-# AWS Budget Alert Configuration (Strictly satisfies Guideline 7: Budget Caution)
-# Triggers automated email notifications if actual or forecasted charges exceed free-tier boundaries.
+# AWS budget alerts: email notifications when actual or forecasted charges cross
+# the monthly limit. Notifications do not cap spending.
 
 resource "aws_budgets_budget" "cost_control_budget" {
   name              = "${local.name_prefix}-monthly-budget"

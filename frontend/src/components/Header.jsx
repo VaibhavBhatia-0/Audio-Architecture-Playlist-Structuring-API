@@ -4,7 +4,7 @@ export default function Header({ onOpenHistory, onOpenHealth, onOpenDocs }) {
   const links = [
     { label: 'History', onClick: onOpenHistory, title: 'View saved generation history' },
     { label: 'System status', onClick: onOpenHealth, title: 'View runtime and infrastructure status' },
-    { label: 'Docs', onClick: onOpenDocs, title: 'View the project synopsis and architecture' },
+    { label: 'Docs', onClick: onOpenDocs, title: 'View the project overview and architecture' },
   ];
 
   return (
@@ -18,7 +18,7 @@ export default function Header({ onOpenHistory, onOpenHealth, onOpenDocs }) {
           </svg>
           <div className="leading-tight">
             <h1 className="font-display text-xl font-semibold tracking-tight">Audio Architecture</h1>
-            <p className="text-xs text-muted">Playlist structuring API · Team 6</p>
+            <p className="text-xs text-muted">Playlist structuring API</p>
           </div>
         </div>
 
