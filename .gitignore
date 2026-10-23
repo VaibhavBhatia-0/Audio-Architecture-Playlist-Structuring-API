@@ -78,3 +78,4 @@ Thumbs.db
 
 # Saved Terraform plans can reveal infrastructure details
 terraform/tfplan*
+terraform/destroy.tfplan*

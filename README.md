@@ -101,18 +101,18 @@ do not silently use temporary Lambda disk storage. The API stage is throttled to
 5 requests/second with bursts of 10 by default (`api_throttle_rate_limit`,
 `api_throttle_burst_limit`); excess requests receive `429`.
 
-Create an encrypted, versioned S3 state bucket and a GitHub production
-environment. Configure AWS_DEPLOY_ROLE_ARN and TF_STATE_BUCKET secrets.
-The IAM deployment role must trust GitHub OIDC for this repository's production
-environment and have permission to manage the declared resources and state.
+Create an encrypted, versioned S3 state bucket and GitHub `planning` and
+`production` environments. Configure AWS_DEPLOY_ROLE_ARN and TF_STATE_BUCKET
+secrets in both. The IAM deployment role must trust GitHub OIDC for both
+environments and have permission to manage the declared resources and state.
 Set the repository variable `AWS_DEPLOY_ENABLED=true` only after the state bucket,
-role and secrets exist. Require approval on the production environment before
+role and secrets exist. Require approval on both environments before
 deployment. Without this variable, pushes run CI and skip the AWS jobs.
 
 Pushes to main or master test the stack; deployment requires the enable variable.
 The workflow can also be started manually after account setup. Deployment needs
-two production approvals: the first creates a Terraform plan and shows it in the
-run summary; the second applies exactly that saved plan. The pipeline then
+two approvals: `planning` creates a Terraform plan and shows it in the run
+summary; `production` applies exactly that saved plan. The pipeline then
 builds React using the API output, publishes to S3, invalidates CloudFront and
 checks the deployed API, connected storage and exports.
 

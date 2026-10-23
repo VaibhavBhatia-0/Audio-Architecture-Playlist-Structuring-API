@@ -11,7 +11,7 @@ skips its AWS job until the repository variable `AWS_DEPLOY_ENABLED` is `true`.
 2. In AWS IAM, add GitHub's OIDC provider
    `https://token.actions.githubusercontent.com` with audience
    `sts.amazonaws.com`. Create a deployment role with a trust policy limited to
-   this repository's `production` environment and the audience above. Check
+   this repository's `planning` and `production` environments and the audience above. Check
    [GitHub's OIDC subject format](https://docs.github.com/en/actions/how-tos/secure-your-work/security-harden-deployments/oidc-in-aws)
    for this repository: repositories created after 15 July 2026 may use
    immutable owner and repository IDs in `sub`. Do not use a wildcard subject.
@@ -20,20 +20,24 @@ skips its AWS job until the repository variable `AWS_DEPLOY_ENABLED` is `true`.
    Budgets and resource tagging. Review the Terraform plan and scope the policy
    to this deployment. The role also needs S3 upload and CloudFront invalidation
    permissions for the frontend publication step.
-4. In GitHub, create the `production` environment for the repository. Restrict
-   deployment branches to `main` and set required reviewers. Add the role ARN as
-   environment secret `AWS_DEPLOY_ROLE_ARN` and the state bucket name as
-   environment secret `TF_STATE_BUCKET`. No long-lived AWS keys are needed.
+4. In GitHub, create `planning` and `production` environments. Restrict both
+   to `main` and set required reviewers. Add `AWS_DEPLOY_ROLE_ARN` and
+   `TF_STATE_BUCKET` as environment secrets in both environments. No long-lived
+   AWS keys are needed.
 5. Review the budget email recipients and the API throttling limits
    (`api_throttle_rate_limit`, `api_throttle_burst_limit`) in `terraform/variables.tf`. Set the
    repository variable `AWS_DEPLOY_ENABLED` to `true`. On the Actions page, run
    **CI and AWS Deployment - Audio Architecture System** on `main`. After CI
-   passes, approve `production` for **Plan AWS Infrastructure**, read the
-   Terraform plan in that job's run summary, and approve `production` again for
+   passes, approve `planning` for **Plan AWS Infrastructure**, read the
+   Terraform plan in that job's run summary, and approve `production` for
    **Apply Reviewed Plan** only if the changes are expected. The apply job uses
    the saved plan, so nothing outside the reviewed plan is changed. The plan
    artifact is kept for three days and is visible to anyone who can read the
    repository's Actions runs.
+   The separate **Destroy AWS Deployment** workflow uses the same two
+   environments and requires typing `DESTROY`; run it only when intentionally
+   removing the Terraform-managed stack. The bootstrap state bucket and IAM
+   role are not removed by that workflow.
 6. Save the Terraform outputs, successful deployed-verification artifact, a
    CloudFront browser screenshot, and evidence of DynamoDB/S3 activity. Check
    AWS Billing for actual charges. Budget notifications are alerts, not a cap.

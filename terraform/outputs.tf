@@ -29,6 +29,16 @@ output "cloudwatch_log_group" {
 }
 
 output "frontend_bucket_name" {
-  description = "Reserved private S3 bucket for a future CloudFront frontend"
+  description = "Private S3 bucket containing the compiled React application"
   value       = aws_s3_bucket.frontend.id
+}
+
+output "frontend_cloudfront_distribution_id" {
+  description = "CloudFront distribution ID used for cache invalidation after deployments"
+  value       = aws_cloudfront_distribution.frontend.id
+}
+
+output "frontend_url" {
+  description = "Public HTTPS URL for the React application"
+  value       = "https://${aws_cloudfront_distribution.frontend.domain_name}"
 }
