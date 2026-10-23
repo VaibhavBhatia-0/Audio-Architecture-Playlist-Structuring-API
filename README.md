@@ -50,19 +50,6 @@ respects reduced-motion settings. At phone width the page does not scroll
 sideways; the chart and tracklist scroll within their own areas. Fonts load
 from Google Fonts and fall back to system fonts offline.
 
-## Local setup
-
-Requires Python 3.11 or later and Node 22.12 or later.
-
-```powershell
-npm --prefix frontend ci
-powershell -NoProfile -ExecutionPolicy Bypass -File scripts/run_local.ps1
-```
-
-Open http://localhost:3000. The local runner uses disk storage without AWS
-credentials. If the API is unreachable, the browser uses a simpler greedy
-optimizer. API validation errors appear to the user without switching modes.
-
 ## Verification
 
 ```powershell
@@ -95,8 +82,8 @@ report for measurements.
 The Vercel-ready frontend runs as a browser demo when `VITE_API_BASE_URL` is
 unset. Its local optimizer is simpler than the Python beam-search engine; custom
 tracks and history stay in that browser. No shared server storage or AWS service
-is used by the hosted demo. To use the Python engine locally, run the API and
-frontend together with `scripts/run_local.ps1`.
+is used by the hosted demo. The Python API remains in the repository for tests
+and the future AWS template, but there is no local deployment launcher.
 
 The `terraform/` directory and Python AWS adapters remain as a future cloud
 template. AWS deployment is postponed because the required IAM/OIDC setup is

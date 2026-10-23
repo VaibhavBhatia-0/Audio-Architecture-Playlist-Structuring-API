@@ -332,12 +332,11 @@ not rendered audio.
 - **Infrastructure as code:** `terraform/`
 - **CI/CD pipeline:** `.github/workflows/ci-cd.yml`
 
-**Local run and verification** (Python 3.11+, Node 22.12+):
+**Verification** (Python 3.11+, Node 22.12+):
 ```powershell
 npm --prefix frontend ci
 python -m unittest discover -s backend/tests -v
 python scripts/verify_project.py
-powershell -NoProfile -ExecutionPolicy Bypass -File scripts/run_local.ps1
 ```
 
 **Current pipeline.** Every push runs backend tests, the HTTP integration

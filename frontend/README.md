@@ -17,11 +17,10 @@ npm --prefix frontend run build    # production bundle in frontend/dist
 node scripts/test_frontend_api.mjs # service-layer tests
 ```
 
-For the full Python engine locally, start the API too (`scripts/run_local.ps1`
-runs both); development mode defaults to `http://localhost:8000`. Production
-builds without `VITE_API_BASE_URL` make no API requests. Vercel hosts the static
-frontend only, using the root `vercel.json` configuration. No cloud API is
-currently deployed or required for the browser demo.
+Without `VITE_API_BASE_URL`, both development and production builds use the
+browser demo and make no API requests. The Python API is retained for testing
+and future AWS deployment, but no local deployment launcher is included.
+Vercel hosts the static frontend using the root `vercel.json` configuration.
 
 ## Structure
 

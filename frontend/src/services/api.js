@@ -3,7 +3,7 @@
  * Uses the Python API when configured; otherwise runs as a browser-only demo.
  */
 
-const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || (import.meta.env.DEV ? "http://localhost:8000" : "")).replace(/\/$/, '');
+const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || "").replace(/\/$/, '');
 
 function requestApi(path, options) {
   if (!API_BASE_URL) return Promise.reject(new TypeError("No API configured; using browser demo."));

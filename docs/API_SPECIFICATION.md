@@ -1,8 +1,8 @@
 # API Specification: Audio Architecture & Playlist Structuring API
 
 ## Base URLs
-- **Production (AWS API Gateway):** `https://<api-id>.execute-api.<region>.amazonaws.com`
-- **Local Development / Demo:** `http://localhost:8000`
+- **Future AWS API Gateway (not deployed):** `https://<api-id>.execute-api.<region>.amazonaws.com`
+- **Isolated HTTP test harness:** `http://localhost:8000` (not a deployment)
 
 ---
 

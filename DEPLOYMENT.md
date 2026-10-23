@@ -49,23 +49,9 @@ Vercel URL or AWS endpoint has been verified here.
 - On 24 October 2026, `terraform fmt -check` and `terraform validate` passed
   locally with Terraform from `.tools/`.
 
-## Run locally
-
-Requires Python 3.11+ and Node 22.12+.
-
-```powershell
-npm --prefix frontend ci
-powershell -NoProfile -ExecutionPolicy Bypass -File scripts/run_local.ps1
-```
-
-Open `http://localhost:3000`. The API listens on `http://localhost:8000`.
-Custom metadata and saved playlists are written under `backend/app/data/` and
-ignored by Git. If the API is unreachable, the browser uses local storage and a
-simpler greedy optimizer; that mode is labeled in the UI.
-
 ## What remains
 
-1. Import `main` into Vercel and verify its public URL, browser-only
+1. Record and verify the Vercel URL, browser-only
    generation, custom songs, history and M3U/JSON/CSV downloads.
 2. Keep backend tests, frontend checks and Terraform validation green in CI.
 3. For any future AWS deployment, first choose a suitable account plan, review
