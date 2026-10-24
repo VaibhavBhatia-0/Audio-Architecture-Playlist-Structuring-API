@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { GENRE_COLORS, genreColor } from './genreColors';
 
-const INK = '#1b1a17';
-const RULE = '#d3c9b6';
-const MUTED = '#6a6458';
-const ACCENT = '#c23d17';
+const INK = 'var(--color-ink)';
+const RULE = 'var(--color-rule)';
+const MUTED = 'var(--color-muted)';
+const ACCENT = 'var(--color-accent)';
 
 export default function EnergyCurveVisualizer({ playlist, activeTrackId, onTrackSelect }) {
   const [hoveredPoint, setHoveredPoint] = useState(null);
@@ -130,7 +130,7 @@ export default function EnergyCurveVisualizer({ playlist, activeTrackId, onTrack
                   onMouseEnter={show} onMouseLeave={hide} onFocus={show} onBlur={hide}>
                   <line x1={cx} y1={mapY(pt.target_energy)} x2={cx} y2={cy} stroke={INK} strokeOpacity=".25" />
                   {isActive && <circle cx={cx} cy={cy} r="11" fill="none" stroke={ACCENT} strokeWidth="2" />}
-                  <circle cx={cx} cy={cy} r={isActive ? 7 : 5.5} fill={genreColor(pt.genre)} stroke="#f3eee4" strokeWidth="2" />
+                  <circle cx={cx} cy={cy} r={isActive ? 7 : 5.5} fill={genreColor(pt.genre)} stroke="var(--color-paper)" strokeWidth="2" />
                 </g>
               );
             })}

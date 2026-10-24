@@ -11,7 +11,7 @@ export default function GenreSelector({ genres, selectedGenres, onToggleGenre, o
             <button type="button" aria-pressed={isSelected} key={g.name} onClick={() => onToggleGenre(g.name)}
               className="chip" title={`${g.track_count} tracks · avg ${g.avg_bpm} BPM · energy ${Math.round(g.avg_energy * 100)}%`}>
               <span aria-hidden="true" className="w-2.5 h-2.5 rounded-full shrink-0"
-                style={{ backgroundColor: genreColor(g.name), boxShadow: isSelected ? '0 0 0 1.5px #f3eee4' : 'none' }} />
+                style={{ backgroundColor: genreColor(g.name), boxShadow: isSelected ? '0 0 0 1.5px var(--color-paper)' : 'none' }} />
               <span>{g.name}</span>
               <span className={`font-mono text-[11px] ${isSelected ? 'opacity-70' : 'text-muted'}`}>{g.track_count}</span>
             </button>

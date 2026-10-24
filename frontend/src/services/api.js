@@ -538,7 +538,7 @@ function runClientSideOptimizer(params) {
   const playlistId = `pl_client_${Date.now().toString(36)}`;
   const playlist = {
     playlist_id: playlistId,
-    name: name || `Audio Architecture - ${curve_type.replace(/_/g, " ").toUpperCase()} (${target_duration_minutes}m)`,
+    name: name || `RESONAA - ${curve_type.replace(/_/g, " ").toUpperCase()} (${target_duration_minutes}m)`,
     created_at: new Date().toISOString(),
     target_duration_minutes,
     actual_duration_seconds: elapsed,

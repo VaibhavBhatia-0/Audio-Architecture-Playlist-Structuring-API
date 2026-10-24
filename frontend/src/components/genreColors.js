@@ -1,12 +1,13 @@
 // Earthy, print-like genre colours shared by the chips, chart and tracklist.
+// Values are CSS variables (defined in index.css) so the dark theme can lift them.
 export const GENRE_COLORS = {
-  "Contemporary Classical Piano": "#8a5a2b",
-  "Indie Pop": "#c4577f",
-  "Hip-Hop": "#1b1a17",
-  "Ambient": "#6f8f7a",
-  "Deep House": "#2f5d62",
-  "Synthwave": "#93356a",
-  "Neo-Soul": "#b8891a"
+  "Contemporary Classical Piano": "var(--genre-classical)",
+  "Indie Pop": "var(--genre-indie-pop)",
+  "Hip-Hop": "var(--genre-hip-hop)",
+  "Ambient": "var(--genre-ambient)",
+  "Deep House": "var(--genre-deep-house)",
+  "Synthwave": "var(--genre-synthwave)",
+  "Neo-Soul": "var(--genre-neo-soul)"
 };
 
-export const genreColor = (genre) => GENRE_COLORS[genre] || "#6a6458";
+export const genreColor = (genre) => GENRE_COLORS[genre] || "var(--color-muted)";

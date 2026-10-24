@@ -14,19 +14,63 @@ import DocsModal from './components/DocsModal';
 import AudioPlayerBar from './components/AudioPlayerBar';
 import SessionControls from './components/SessionControls';
 import CustomTrackManager from './components/CustomTrackManager';
+import ProductTour from './components/ProductTour';
 
 import { fetchGenres, fetchPresets, fetchPlaylist, fetchCustomTracks, fetchTracks, generatePlaylist } from './services/api';
 import { audioSynth } from './services/audioSynthesizer';
 import { ArrowRight, ArrowDown } from 'lucide-react';
 
 const DEMO_SESSIONS = [
-  { name: 'Deep work', description: 'A focused rise, steady peak, and gentle finish.', duration: 45, curve: 'pomodoro_peak', genres: ['Contemporary Classical Piano', 'Ambient', 'Neo-Soul'] },
-  { name: 'Movement', description: 'Interval energy with dance-ready transitions.', duration: 60, curve: 'wave_interval', genres: ['Deep House', 'Synthwave', 'Indie Pop'] },
-  { name: 'Evening reset', description: 'Ease down from a busy day.', duration: 30, curve: 'linear_descent', genres: ['Ambient', 'Contemporary Classical Piano', 'Neo-Soul'] },
-  { name: 'Open-format mix', description: 'Bridge beats, soul, and pop with a custom feel.', duration: 45, curve: 'steady_flow', genres: ['Hip-Hop', 'Neo-Soul', 'Indie Pop'] }
+  { name: 'Deep work', mood: 'deep-work', description: 'A focused rise, steady peak, and gentle finish.', duration: 45, curve: 'pomodoro_peak', genres: ['Contemporary Classical Piano', 'Ambient', 'Neo-Soul'] },
+  { name: 'Movement', mood: 'movement', description: 'Interval energy with dance-ready transitions.', duration: 60, curve: 'wave_interval', genres: ['Deep House', 'Synthwave', 'Indie Pop'] },
+  { name: 'Evening reset', mood: 'evening-reset', description: 'Ease down from a busy day.', duration: 30, curve: 'linear_descent', genres: ['Ambient', 'Contemporary Classical Piano', 'Neo-Soul'] },
+  { name: 'Open-format mix', mood: 'open-format', description: 'Bridge beats, soul, and pop with a custom feel.', duration: 45, curve: 'steady_flow', genres: ['Hip-Hop', 'Neo-Soul', 'Indie Pop'] }
 ];
 
+// Applies a palette change immediately. While .palette-fade is on <html>, colours
+// ease to their new values (skipped when the user prefers reduced motion).
+let fadeTimer;
+function repaint(update) {
+  const root = document.documentElement;
+  if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    root.classList.add('palette-fade');
+    clearTimeout(fadeTimer);
+    fadeTimer = setTimeout(() => root.classList.remove('palette-fade'), 600);
+  }
+  update();
+  syncThemeColor();
+}
+
+function syncThemeColor() {
+  const paper = getComputedStyle(document.documentElement).getPropertyValue('--color-paper').trim();
+  document.querySelector('meta[name="theme-color"]')?.setAttribute('content', paper);
+}
+
+// Re-tints the page for a scenario mood (null restores the default palette).
+function applyMood(mood) {
+  repaint(() => {
+    const root = document.documentElement;
+    if (mood) root.dataset.mood = mood;
+    else delete root.dataset.mood;
+  });
+}
+
+// Switches light/dark and remembers the choice for this browser.
+function applyTheme(theme) {
+  repaint(() => {
+    document.documentElement.dataset.theme = theme;
+    try { localStorage.setItem('audio-theme', theme); } catch { /* storage unavailable */ }
+  });
+}
+
 export default function App() {
+  const [mood, setMood] = useState(null);
+  const [theme, setTheme] = useState(() => document.documentElement.dataset.theme === 'dark' ? 'dark' : 'light');
+  useEffect(syncThemeColor, []);
+  const toggleTheme = () => {
+    const next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+    setTheme(next); applyTheme(next);
+  };
   const [genres, setGenres] = useState([]);
   const [presets, setPresets] = useState([]);
   const [customTracks, setCustomTracks] = useState([]);
@@ -177,13 +221,15 @@ export default function App() {
         onOpenHistory={() => setIsHistoryOpen(true)}
         onOpenHealth={() => setIsHealthOpen(true)}
         onOpenDocs={() => setIsDocsOpen(true)}
+        theme={theme}
+        onToggleTheme={toggleTheme}
       />
 
       <main id="main-content" className="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 lg:px-8 pt-10 pb-32 space-y-16">
         {/* Introduction and scenario starters */}
         <section aria-labelledby="intro-title" className="grid lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)] gap-x-14 gap-y-10">
           <div>
-            <p className="eyebrow">Plan the flow · hear the shape</p>
+            <p className="eyebrow">Energy-shaped playlists</p>
             <h2 id="intro-title" className="mt-4 font-display text-[2.6rem] sm:text-6xl leading-[1.02] font-semibold tracking-tight">
               Playlists shaped like the <em className="font-normal text-accent">session</em> you want.
             </h2>
@@ -192,7 +238,7 @@ export default function App() {
               harmonic key and energy fit, then shows you exactly how close it got.
             </p>
             <p className="mt-6 font-mono text-xs text-muted">
-              {catalogCount || '…'} tracks / 7 energy curves / M3U · JSON · CSV / metadata-only demo
+              {catalogCount || '…'} tracks / 7 energy curves / M3U · JSON · CSV export
             </p>
           </div>
 
@@ -201,10 +247,18 @@ export default function App() {
             <ol className="mt-3 border-t-[1.5px] border-ink">
               {DEMO_SESSIONS.map((demo, index) => (
                 <li key={demo.name} className="border-b border-rule">
-                  <button type="button"
-                    onClick={() => { setDuration(demo.duration); setSelectedCurve(demo.curve); setSelectedGenres(demo.genres); setSessionName(demo.name); }}
-                    className="group w-full text-left flex items-baseline gap-4 py-4 hover:text-accent-ink transition-colors">
+                  <button type="button" aria-pressed={mood === demo.mood}
+                    onClick={() => {
+                      setDuration(demo.duration); setSelectedCurve(demo.curve); setSelectedGenres(demo.genres); setSessionName(demo.name);
+                      setMood(demo.mood); applyMood(demo.mood);
+                    }}
+                    className={`group w-full text-left flex items-baseline gap-4 py-4 hover:text-accent-ink transition-colors ${mood === demo.mood ? 'text-accent-ink' : ''}`}>
                     <span className="font-mono text-xs text-muted w-6 shrink-0">0{index + 1}</span>
+                    {/* Swatch carries its own data-mood, so it previews that palette. */}
+                    <span aria-hidden="true" data-mood={demo.mood}
+                      className={`self-center w-4 h-4 shrink-0 rounded-full bg-paper border-[1.5px] grid place-items-center ${mood === demo.mood ? 'border-accent' : 'border-ink'}`}>
+                      <span className="w-1.5 h-1.5 rounded-full bg-accent" />
+                    </span>
                     <span className="flex-1 min-w-0">
                       <span className="block font-display text-xl font-medium">{demo.name}</span>
                       <span className="block text-sm text-muted mt-0.5">{demo.description}</span>
@@ -215,7 +269,12 @@ export default function App() {
                 </li>
               ))}
             </ol>
-            <p className="mt-3 text-xs text-muted">A scenario fills in the builder below; you can still change anything.</p>
+            <p className="mt-3 text-xs text-muted">
+              A scenario fills in the builder below and sets the page palette; you can still change anything.
+              {mood && (
+                <> <button type="button" onClick={() => { setMood(null); applyMood(null); }} className="text-link text-ink">Default palette</button></>
+              )}
+            </p>
           </div>
         </section>
 
@@ -323,27 +382,15 @@ export default function App() {
 
         <CustomTrackManager genres={genres} tracks={customTracks} onChanged={refreshCatalog} />
 
-        <section id="project-overview" aria-labelledby="project-title" className="border-t-[1.5px] border-ink pt-8">
-          <h2 id="project-title" className="eyebrow">What this project demonstrates</h2>
-          <div className="mt-6 grid md:grid-cols-3 md:divide-x divide-rule">
-            {[
-              ['Structure', 'Seven target energy profiles with browser-based sequencing; the local Python API adds duration-aware beam search and tunable transition scoring.'],
-              ['Experience', 'Interactive trajectory, track previews, session history, custom metadata and portable exports.'],
-              ['Delivery', 'The browser demo is Vercel-ready. Terraform is kept as a future AWS template; cloud deployment is pending.'],
-            ].map(([title, text], index) => (
-              <article key={title} className="py-4 md:py-0 md:px-8 first:md:pl-0 border-b md:border-b-0 border-rule last:border-b-0">
-                <p className="font-mono text-xs text-accent-ink">0{index + 1}</p>
-                <h3 className="mt-2 font-display text-2xl font-medium">{title}</h3>
-                <p className="mt-2 text-sm text-ink-soft leading-relaxed">{text}</p>
-              </article>
-            ))}
-          </div>
-        </section>
+        <ProductTour onStart={() => {
+          const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+          document.getElementById('main-content')?.scrollIntoView({ behavior: reduced ? 'auto' : 'smooth', block: 'start' });
+        }} />
       </main>
 
       <footer className="border-t-[1.5px] border-ink">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-col sm:flex-row sm:justify-between gap-2 text-xs text-muted">
-          <p>Audio Architecture · playlist structuring demo</p>
+          <p>RESONAA · plan the flow, hear the shape</p>
           <a href="https://github.com/VaibhavBhatia-0/Audio-Architecture-Playlist-Structuring-API" className="text-link">Source on GitHub</a>
         </div>
       </footer>
@@ -387,6 +434,7 @@ export default function App() {
       <DocsModal
         isOpen={isDocsOpen}
         onClose={() => setIsDocsOpen(false)}
+        theme={theme}
       />
 
     </div>

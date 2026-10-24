@@ -23,8 +23,13 @@ export default function EnergyCurveSelector({ presets, selectedCurve, onSelectCu
               isSelected ? 'text-ink' : 'text-ink-soft hover:text-ink'
             }`}>
             <svg aria-hidden="true" viewBox="0 0 100 40" className="w-16 h-7 shrink-0 overflow-visible">
-              <path d={CURVE_PATHS[preset.id] || "M 2 20 L 98 20"} fill="none"
-                stroke={isSelected ? '#c23d17' : '#1b1a17'} strokeOpacity={isSelected ? 1 : .45}
+              {/* When selected, a faint copy stays as a trail while the accent line draws over it.
+                  The key restarts the animation each time the curve is picked. */}
+              {isSelected && <path className="curve-trail" d={CURVE_PATHS[preset.id] || "M 2 20 L 98 20"} fill="none"
+                stroke="var(--color-ink)" strokeWidth="2" strokeLinecap="round" />}
+              <path key={isSelected ? 'on' : 'off'} className={isSelected ? 'curve-draw' : undefined}
+                d={CURVE_PATHS[preset.id] || "M 2 20 L 98 20"} fill="none" pathLength="1"
+                stroke={isSelected ? 'var(--color-accent)' : 'var(--color-ink)'} strokeOpacity={isSelected ? 1 : .45}
                 strokeWidth={isSelected ? 3.5 : 2} strokeLinecap="round" />
             </svg>
             <span className="min-w-0 flex-1">

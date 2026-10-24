@@ -39,9 +39,9 @@ export default function CustomCurveEditor({ customPoints, onChangePoints }) {
         </div>
       </div>
       <svg aria-hidden="true" viewBox="-4 -4 308 68" className="w-full h-16">
-        <line x1="0" y1="60" x2="300" y2="60" stroke="#d3c9b6" />
-        <path d={path} fill="none" stroke="#c23d17" strokeWidth="2.5" strokeLinejoin="round" />
-        {points.map((pt, i) => <circle key={i} cx={pt.time_fraction * 300} cy={(1 - pt.target_energy) * 60} r="3.5" fill="#1b1a17" />)}
+        <line x1="0" y1="60" x2="300" y2="60" stroke="var(--color-rule)" />
+        <path d={path} fill="none" stroke="var(--color-accent)" strokeWidth="2.5" strokeLinejoin="round" />
+        {points.map((pt, i) => <circle key={i} cx={pt.time_fraction * 300} cy={(1 - pt.target_energy) * 60} r="3.5" fill="var(--color-ink)" />)}
       </svg>
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-x-6 gap-y-4">
         {points.map((pt, i) => (

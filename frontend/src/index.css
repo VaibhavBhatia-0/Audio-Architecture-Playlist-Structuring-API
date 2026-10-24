@@ -19,6 +19,80 @@
   --font-mono: "JetBrains Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
 }
 
+/* Scenario moods. Picking a scenario sets data-mood on <html>, which re-tints the
+   whole page and swaps the heading font; a swatch with its own data-mood previews that palette. These rules
+   are unlayered so they override the @theme defaults. */
+[data-mood="deep-work"] {
+  --font-display: "Newsreader", Georgia, serif;
+  --color-paper: #f0f8f1; --color-paper-deep: #e2eae3; --color-rule: #c9d0ca;
+  --color-ink: #101911; --color-ink-soft: #37473a; --color-muted: #556959;
+  --color-accent: #008140; --color-accent-ink: #00672e;
+}
+[data-mood="movement"] {
+  --font-display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --color-paper: #fef2ec; --color-paper-deep: #f2e5de; --color-rule: #d5cbc6;
+  --color-ink: #1e130e; --color-ink-soft: #503e34; --color-muted: #745e52;
+  --color-accent: #d81618; --color-accent-ink: #b30008;
+}
+[data-mood="evening-reset"] {
+  --font-display: "Cormorant Garamond", Georgia, serif;
+  --color-paper: #faf2f9; --color-paper-deep: #ede5ec; --color-rule: #d2cbd1;
+  --color-ink: #1b131a; --color-ink-soft: #4c3d4a; --color-muted: #6f5c6d;
+  --color-accent: #a73189; --color-accent-ink: #881f6e;
+}
+[data-mood="open-format"] {
+  --font-display: "Syne", "Segoe UI", system-ui, sans-serif;
+  --color-paper: #faf5e6; --color-paper-deep: #ede8d8; --color-rule: #d2cdc1;
+  --color-ink: #1a160b; --color-ink-soft: #494230; --color-muted: #6b634d;
+  --color-accent: #007570; --color-accent-ink: #005c58;
+}
+
+/* Genre colours, as variables so the dark theme can lift them. */
+:root {
+  --genre-classical: #8a5a2b; --genre-indie-pop: #c4577f; --genre-hip-hop: #1b1a17;
+  --genre-ambient: #6f8f7a; --genre-deep-house: #2f5d62; --genre-synthwave: #93356a;
+  --genre-neo-soul: #b8891a;
+}
+
+/* Dark theme ("noir"): near-black paper, light ink and a vivid accent per mood.
+   Moods use two selectors: the page itself, and swatches inside a dark page. */
+[data-theme="dark"] {
+  color-scheme: dark;
+  --color-paper: #12110f; --color-paper-deep: #1d1c19; --color-rule: #34312c;
+  --color-ink: #f3eee4; --color-ink-soft: #cfc8bb; --color-muted: #a39b8c;
+  --color-accent: #ff6a3d; --color-accent-ink: #ff8c66;
+  --color-olive: #a9b86a; --color-mustard: #d9ac3c;
+  --genre-classical: #c8925a; --genre-indie-pop: #e07fa3; --genre-hip-hop: #efe9dd;
+  --genre-ambient: #8fb39b; --genre-deep-house: #5fa3a8; --genre-synthwave: #c96aa0;
+  --genre-neo-soul: #d9ac3c;
+}
+[data-theme="dark"][data-mood="deep-work"], [data-theme="dark"] [data-mood="deep-work"] {
+  --color-paper: #0b110d; --color-paper-deep: #161c18; --color-rule: #2c322e;
+  --color-ink: #e5f3e9; --color-ink-soft: #b9cdbf; --color-muted: #889f8f;
+  --color-accent: #5ce483; --color-accent-ink: #84f8a0;
+}
+[data-theme="dark"][data-mood="movement"], [data-theme="dark"] [data-mood="movement"] {
+  --color-paper: #150d0c; --color-paper-deep: #211816; --color-rule: #362e2d;
+  --color-ink: #fceae7; --color-ink-soft: #dac1bc; --color-muted: #ad918c;
+  --color-accent: #ff6853; --color-accent-ink: #ff8872;
+}
+[data-theme="dark"][data-mood="evening-reset"], [data-theme="dark"] [data-mood="evening-reset"] {
+  --color-paper: #120d13; --color-paper-deep: #1e181f; --color-rule: #332e34;
+  --color-ink: #f5eaf7; --color-ink-soft: #d0c1d4; --color-muted: #a292a6;
+  --color-accent: #f68fd5; --color-accent-ink: #ffaae9;
+}
+[data-theme="dark"][data-mood="open-format"], [data-theme="dark"] [data-mood="open-format"] {
+  --color-paper: #110f09; --color-paper-deep: #1d1a14; --color-rule: #32302a;
+  --color-ink: #f4eee0; --color-ink-soft: #cfc7b2; --color-muted: #a19880;
+  --color-accent: #fcca21; --color-accent-ink: #ffe361;
+}
+
+/* Temporary class set while switching mood or theme, so colours ease over. */
+.palette-fade, .palette-fade *, .palette-fade *::before, .palette-fade *::after {
+  transition: background-color .5s ease, color .5s ease, border-color .5s ease,
+    fill .5s ease, stroke .5s ease, box-shadow .5s ease !important;
+}
+
 @layer base {
   html { background: var(--color-paper); }
   body {
@@ -88,6 +162,20 @@
   .icon-btn { padding: 6px; border-radius: 999px; color: var(--color-ink); }
   .icon-btn:hover { background: var(--color-ink); color: var(--color-paper); }
 }
+
+/* Gentle scroll reveal for the product tour (added by JS only when motion is allowed). */
+.reveal { opacity: 0; transform: translateY(28px); transition: opacity .8s cubic-bezier(.2,.7,.2,1), transform .8s cubic-bezier(.2,.7,.2,1); }
+.reveal[data-from="left"] { transform: translate(-28px, 12px); }
+.reveal[data-from="right"] { transform: translate(28px, 12px); }
+.reveal.is-visible { opacity: 1; transform: none; }
+
+/* Selected energy-curve thumbnail draws itself in, then breathes gently. */
+@keyframes curve-draw { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
+@keyframes curve-glow { 0%, 100% { stroke-width: 3.5; } 50% { stroke-width: 4.5; } }
+.curve-draw { stroke-dasharray: 1; animation: curve-draw .9s cubic-bezier(.3,.7,.2,1) both, curve-glow 2.4s ease-in-out .9s infinite; }
+.curve-trail { animation: curve-fade .9s ease-out both; }
+@keyframes curve-fade { from { opacity: .45; } to { opacity: .18; } }
+@media (prefers-reduced-motion: reduce) { .curve-draw, .curve-trail { animation: none; stroke-dasharray: none; } }
 
 @keyframes eq-bounce { 0%, 100% { transform: scaleY(.35); } 50% { transform: scaleY(1); } }
 .eq-bar { transform-origin: bottom; animation: eq-bounce .7s ease-in-out infinite; }
